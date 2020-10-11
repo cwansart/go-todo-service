@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -25,11 +26,25 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/", listTodosHandler)
+	e.GET("/todos", listTodosHandler)
+	e.POST("/todos", addTodoHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
 func listTodosHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, todos)
+}
+
+func addTodoHandler(c echo.Context) error {
+	newTodo := new(Todo)
+	if err := c.Bind(newTodo); err != nil {
+		fmt.Printf("Could not bind input data. %v", err.Error())
+		return err
+	}
+
+	todos = append(todos, *newTodo)
+
+	uri := fmt.Sprintf("/todos/%d", len(todos)-1)
+	return c.String(http.StatusCreated, uri)
 }
