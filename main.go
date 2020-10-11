@@ -7,17 +7,29 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+var todos []Todo = []Todo{
+	{
+		Title: "foo",
+		Done:  false,
+	},
+}
+
+type Todo struct {
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
+}
+
 func main() {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/", helloHandler)
+	e.GET("/", listTodosHandler)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
-func helloHandler(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello World")
+func listTodosHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, todos)
 }
